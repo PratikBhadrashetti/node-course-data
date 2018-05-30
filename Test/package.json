@@ -1,0 +1,16 @@
+{
+  "name": "post_request",
+  "version": "1.0.0",
+  "description": "post request check",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "pr@tik",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongodb": "^3.1.0-beta4"
+  }
+}
