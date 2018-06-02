@@ -2,6 +2,8 @@ console.log('Server Started...!!!');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const _ = require('lodash');
+
 const port = process.env.PORT || 3000 ;
 
 var {mongoose} = require('./db/mongoose.js');
@@ -23,7 +25,7 @@ app.get('/getTodos' , (req , res) => {
 	
 	Todo.find().then((todos) => {
 		//console.log('Result : ' , JSON.stringify(todos , undefined , 2));
-		res.status(200).send(JSON.stringify(todos , undefined , 2));
+		res.status(200).send({todos});
 	} , (error) => {
 		//console.log('Unable to store document...!!!' , error);
 		res.status(400).send(error);
@@ -45,7 +47,7 @@ app.get('/getTodoById/:id' , (req , res) => {
 		if(!todo){
 			res.status(404).send('Record not found...!!!');
 		}
-		res.status(200).send(todo);
+		res.status(200).send({todo});
 	} , (error) => {
 		res.status(400).send(error);
 	});
@@ -62,7 +64,7 @@ app.get('/getTodoByText/:text' , (req , res) => {
 			res.status(404).send('Record not found...!!!');
 		}
 		//console.log('Result : ' , JSON.stringify(todo , undefined , 2));
-		res.status(200).send(JSON.stringify(todo , undefined , 2));
+		res.status(200).send({todo});
 	} , (error) => {
 		//console.log('Unable to store document...!!!' , error);
 		res.status(400).send(error);
@@ -81,10 +83,64 @@ app.post('/addTodo' , (req , res) => {
 	});
 	
 	newTodo.save().then((result) => {
-		console.log('Result : ' , JSON.stringify(result , undefined , 2));
+		//console.log('Result : ' , JSON.stringify(result , undefined , 2));
 		res.status(200).send(result);
 	} , (error) => {
 		//console.log('Unable to store document...!!!' , error);
+		res.status(400).send(error);
+	});
+});
+
+//To update a resourse...
+app.patch('/updateTodo/:id' , (req , res) => {
+	console.log('Inside PATCH /updateTodo API...');
+	console.log('Request Body : ' , req.body);
+	
+	var id = req.params.id ;
+	var body = _.pick(req.body , ['text' , 'completed']); //body - this variable contains subset of user passed values to us so that
+														  //we can restrict user from updating any values...
+	
+	if(!ObjectID.isValid(id)){
+		res.status(404).send('Id not valid...!!!');
+	}
+	
+	if(_.isBoolean(body.completed) && body.completed){
+		body.completedAt = new Date().getTime();
+	}else{
+		body.completed = false ;
+		body.completedAt = null ;
+	}
+	
+	//{retutnOriginal : true} == {new : true}
+	Todo.findByIdAndUpdate(id , {$set : body} , {new : true}).then((todo) => {
+		if(!todo){
+			res.status(404).send('Record not found...!!!');
+		}
+		res.status(200).send({todo});
+	}).catch((err) => done(err));
+});
+
+
+app.delete('/deleteTodo/:id' , (req , res) => {
+	console.log('Inside DELETE /deleteTodo/:id API...');
+	console.log('Request Body : ' , req.params.id);
+
+	var id = req.params.id ;
+	if(!ObjectID.isValid(id)){
+		res.status(404).send('Id not valid...!!!');
+	}
+ 
+	if(_.isBoolean(body.completed) && body.completed){
+		
+	}
+	
+	var query = {"_id" : req.params.id};
+	Todo.findByIdAndRemove(id).then((todo) => {
+		if(!todo){
+			res.status(404).send('Record not found...!!!');
+		}
+		res.status(200).send({todo});
+	} , (error) => {
 		res.status(400).send(error);
 	});
 });
@@ -93,6 +149,7 @@ app.post('/addTodo' , (req , res) => {
 app.listen(port , () => {
 	console.log(`Server started on port ${port}...!!!`);
 });
+
 
 module.exports = {
 	app : app

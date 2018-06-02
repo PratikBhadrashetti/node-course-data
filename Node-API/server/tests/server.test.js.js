@@ -14,11 +14,13 @@ beforeEach((done) => {
 });
 
 const todos = [{
-	_id : new ObjectID() ,
+	"_id" : new ObjectID() ,
 	text : 'First test todo'
 } , {
-	_id : new ObjectID() ,
-	text : 'Second test todo'
+	"_id" : new ObjectID() ,
+	text : 'Second test todo' ,
+	completed : true ,
+	completedAt : 333
 }];
 
 
@@ -76,35 +78,124 @@ const todos = [{
 		// });
 // });
 
-describe('GET /getTodo/:id' , () => {
+// describe('GET /getTodo/:id' , () => {
 	
-	it('It should return todo document' , (done) => {
-		var hexId = new ObjectID().toHexString();
+	// it('It should return todo document' , (done) => {
+		// var hexId = todos[1]._id.toHexString();
 		
-		request(app)
-		 .get(`/getTodoById/${todos[0]._id.toHexString()}`)  //toHexString - converts ObjectID to string
-		 .expect(200)
-		 .expect((res) => {
-			expect(res.body.todo.text).toBe(todos[0].text); 
-		 })
-		 .end(done);
+		// request(app)
+		 // .get(`/getTodoById/${todos[0]._id.toHexString()}`)  //toHexString - converts ObjectID to string
+		 // .expect(200)
+		 // .expect((res) => {
+			// expect(res.body.todo.text).toBe(todos[0].text); 
+		 // })
+		 // .end(done);
+	// });
+	
+	// it('It should return 404 if no todo found' , (done) => {
+		// var hexId = todos[1]._id.toHexString();
+		
+		// request(app)
+		 // .get(`/getTodoById/${hexId}`)  //toHexString - converts ObjectID to string
+		 // .expect(404)
+		 // .end(done);
+	// });
+	
+	// it('It should return 404 for non-object ids' , (done) => {
+		// var hexId = todos[1]._id.toHexString();
+		
+		// request(app)
+		 // .get('/getTodoById/123abc')  //toHexString - converts ObjectID to string
+		 // .expect(404)
+		 // .end(done);
+	// });
+// });
+
+
+// describe('DELETE /deleteTodo/:id' , () => {
+	
+	// it('It should delete todo from mongodb' , (done) => {
+		// var hexId = todos[1]._id.toHexString();   //toHexString - converts ObjectID to string
+		
+		// request(app)
+		  // .delete(`/deleteTodo/${hexId}`) 
+		  // .expect(200)
+		  // .expect((res) => {
+			  // expect(res.body.todo._id).toBe(hexId);
+		  // })
+		  // .end((err ,res) => {
+			  // if(err){
+				// return done(err);
+			  // }
+			   
+			  // Todo.findById(hexId).then((todo) => {
+				  // expect(todo).toNotExist();
+				  // done();
+			  // }).catch((err) => done(err));
+		  // });
+	// });
+	
+	 
+	// it('It should return 404 if no todo found' , (done) => {
+		// var hexId = todos[1]._id.toHexString();
+		
+		// request(app)
+		   // .delete(`/deleteTodo/${hexId}`)  
+		   // .expect(404)
+		   // .end(done);
+	// });
+	
+	 
+	// it('It should return 404 for non-object ids' , (done) => {
+		// var hexId = todos[1]._id.toHexString();
+		
+		// request(app)
+		   // .delete('/deleteTodo/123abc')  
+		   // .expect(404)
+		   // .end(done);
+	// });
+// });
+
+
+describe('PATCH /updateTodo/:id' , () => {
+	
+	it('It should update and return todo from mongodb database' , (done) => {
+			var hexId = todos[0]._id.toHexString();
+			var text = 'This is updated text'
+			
+			request(app)
+			.patch(`/updateTodo/${hexId}`)
+			.send({
+				completed : true ,
+				text : text
+			})
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.text).toBe(text);
+				expect(res.body.todo.completed).toBe(true);
+				//expect(res.body.todo.completedAt).toBe('number');
+			})
+			.end(done);
 	});
 	
-	it('It should return 404 if no todo found' , (done) => {
-		var hexId = new ObjectID().toHexString();
-		
-		request(app)
-		 .get(`/getTodoById/${hexId}`)  //toHexString - converts ObjectID to string
-		 .expect(404)
-		 .end(done);
+	
+	it('It should clear completedAt when todo is not completed' , (done) => {
+		var hexId = todos[1]._id.toHexString();
+			var text = 'This is updated text...!!!'
+			
+			request(app)
+			.patch(`/updateTodo/${hexId}`)
+			.send({
+				completed : false ,
+				text : text
+			})
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.text).toBe(text);
+				expect(res.body.todo.completed).toBe(false);
+				//expect(res.body.todo.completedAt).toNotExist();
+			})
+			.end(done);
 	});
 	
-	it('It should return 404 for non-object ids' , (done) => {
-		var hexId = new ObjectID().toHexString();
-		
-		request(app)
-		 .get('/getTodoById/123abc')  //toHexString - converts ObjectID to string
-		 .expect(404)
-		 .end(done);
-	});
 });
