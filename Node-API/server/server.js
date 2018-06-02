@@ -1,16 +1,5 @@
 console.log('Server Started...!!!');
 
-var env = process.env.NODE_ENV || 'development'; 
-console.log('Environment Variable : ' , env);
-
-if(env === 'development'){
-	process.env.PORT = 3000 ;
-	process.env.MONGODB_URI =  'mongodb://localhost:27017/TodoApp' ;
-}else if(env === 'test'){
-	process.env.PORT = 3000 ;
-	process.env.MONGODB_URI =  'mongodb://localhost:27017/TodoAppTest' ;
-}
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
@@ -21,6 +10,7 @@ var {mongoose} = require('./db/mongoose.js');
 var {ObjectID} = require('mongodb');
 var {Todo} = require('./models/todo.js');
 var {User} = require('./models/user.js');
+var {Config} = require('./config/config.js');
 
 var app = express();
 app.use(bodyParser.json());
