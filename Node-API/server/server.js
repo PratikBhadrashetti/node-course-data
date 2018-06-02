@@ -1,10 +1,21 @@
 console.log('Server Started...!!!');
 
+var env = process.env.NODE_ENV || 'development'; 
+console.log('Environment Variable : ' , env);
+
+if(env === 'development'){
+	process.env.PORT = 3000 ;
+	process.env.MONGODB_URI =  'mongodb://localhost:27017/TodoApp' ;
+}else if(env === 'test'){
+	process.env.PORT = 3000 ;
+	process.env.MONGODB_URI =  'mongodb://localhost:27017/TodoAppTest' ;
+}
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 
-const port = process.env.PORT || 3000 ;
+const port = process.env.PORT ;
 
 var {mongoose} = require('./db/mongoose.js');
 var {ObjectID} = require('mongodb');
@@ -14,12 +25,14 @@ var {User} = require('./models/user.js');
 var app = express();
 app.use(bodyParser.json());
 
-
+//Home Page...
 app.get('/' , (req , res) => {
 	console.log('Inside GET / API...');
 	res.status(200).send('Hello Buddy...!!!');
 });
 
+
+//To get all resourses...
 app.get('/getTodos' , (req , res) => {
 	console.log('Inside GET /getTodos API...');
 	
@@ -33,6 +46,7 @@ app.get('/getTodos' , (req , res) => {
 });
 
 
+//to get a resourse by id...
 app.get('/getTodoById/:id' , (req , res) => {
 	console.log('Inside GET /getTodoById/:id API...');
 	console.log('Request Body : ' , req.params.id);
@@ -54,6 +68,7 @@ app.get('/getTodoById/:id' , (req , res) => {
 });
 
 
+//To get a resourse by text...
 app.get('/getTodoByText/:text' , (req , res) => {
 	console.log('Inside GET /getTodoByText/:text API...');
 	console.log('Request Body : ' , req.params.text);
@@ -74,6 +89,7 @@ app.get('/getTodoByText/:text' , (req , res) => {
 });
 
 
+//To add a resourse...
 app.post('/addTodo' , (req , res) => {
 	console.log('Inside POST /addTodo API...');
 	console.log('Request Body : ' , req.body);
@@ -90,6 +106,7 @@ app.post('/addTodo' , (req , res) => {
 		res.status(400).send(error);
 	});
 });
+
 
 //To update a resourse...
 app.patch('/updateTodo/:id' , (req , res) => {
@@ -121,6 +138,7 @@ app.patch('/updateTodo/:id' , (req , res) => {
 });
 
 
+//To delete a resourse...
 app.delete('/deleteTodo/:id' , (req , res) => {
 	console.log('Inside DELETE /deleteTodo/:id API...');
 	console.log('Request Body : ' , req.params.id);
@@ -128,10 +146,6 @@ app.delete('/deleteTodo/:id' , (req , res) => {
 	var id = req.params.id ;
 	if(!ObjectID.isValid(id)){
 		res.status(404).send('Id not valid...!!!');
-	}
- 
-	if(_.isBoolean(body.completed) && body.completed){
-		
 	}
 	
 	var query = {"_id" : req.params.id};
